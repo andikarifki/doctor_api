@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany; // Import untuk relasi
 
 class Pasien extends Model
 {
@@ -27,4 +28,9 @@ class Pasien extends Model
     protected $casts = [
         'tanggal' => 'date', // Mengubah string tanggal dari DB menjadi objek Carbon
     ];
+    public function medicalRecords(): HasMany
+    {
+        // Satu Pasien punya banyak Riwayat Medis
+        return $this->hasMany(MedicalRecord::class);
+    }
 }

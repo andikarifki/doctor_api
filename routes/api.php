@@ -4,6 +4,8 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\PendaftaranPraktikController;
 use App\Http\Controllers\PasienController; // Pastikan ini diimpor!
+use App\Http\Controllers\MedicalRecordController; // Pastikan ini diimpor!
+
 
 // Route Public (Tidak memerlukan token)
 Route::post('/register', [AuthController::class, 'register']);
@@ -38,5 +40,11 @@ Route::prefix('pasien')->group(function () {
 
     // DELETE /api/pasien/{pasien} -> destroy (Menghapus pasien)
     Route::delete('/{pasien}', [PasienController::class, 'destroy']);
+});
+
+Route::prefix('medical-records')->group(function () {
+    // POST /api/medical-records
+    // Menyimpan riwayat medis baru untuk pasien tertentu
+    Route::post('/', [MedicalRecordController::class, 'store']);
 });
 

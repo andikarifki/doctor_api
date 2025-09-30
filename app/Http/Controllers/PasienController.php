@@ -14,8 +14,8 @@ class PasienController extends Controller
      */
     public function index(): JsonResponse
     {
-        $pasien = Pasien::all();
-        return response()->json($pasien);
+        $patients = Pasien::with('medicalRecords')->get();
+        return response()->json($patients);
     }
 
     /**
@@ -28,9 +28,9 @@ class PasienController extends Controller
             $validatedData = $request->validate([
                 'nama' => 'required|string|max:255',
                 // Pastikan format tanggal dan tidak di masa lalu
-                'tanggal' => 'required|date|after_or_equal:today', 
+                'tanggal' => 'required|date',
                 // Status hanya boleh 'Terdaftar' atau 'Selesai', dengan default 'Terdaftar'
-                'status' => 'sometimes|in:Terdaftar,Selesai', 
+                'status' => 'sometimes|in:Terdaftar,Selesai',
             ]);
 
             // Jika status tidak dikirim, Model dan Migrasi akan menggunakan nilai default 'Terdaftar'.
@@ -49,8 +49,12 @@ class PasienController extends Controller
      * Menampilkan data pasien spesifik.
      * Menggunakan Route Model Binding ($pasien).
      */
-    public function show(Pasien $pasien): JsonResponse
+    public function show(string $id)
     {
+        // Menggunakan 'with' untuk memuat (eager load) relasi 'medicalRecords'
+        $pasien = Pasien::with('medicalRecords')->findOrFail($id);
+
+        // Response akan mencakup pasien dan array 'medical_records'
         return response()->json($pasien);
     }
 
