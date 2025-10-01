@@ -10,7 +10,7 @@ return new class extends Migration {
      */
     public function up(): void
     {
-        Schema::create('medical_recors', function (Blueprint $table) {
+        Schema::create('medical_records', function (Blueprint $table) {
             $table->id();
             // 🟢 FIX: Gunakan foreignId() dan pastikan merujuk ke 'patients'
             $table->foreignId('pasien_id')
@@ -30,6 +30,6 @@ return new class extends Migration {
      */
     public function down(): void
     {
-        Schema::dropIfExists('medical_recors');
+        Schema::dropIfExists('medical_records');
     }
 };
