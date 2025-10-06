@@ -35,7 +35,7 @@ Route::prefix('pasien')->group(function () {
     // GET /api/pasien/{pasien} -> show (Menampilkan pasien spesifik)
     Route::get('/{pasien}', [PasienController::class, 'show']);
 
-    // PUT/PATCH /api/pasien/{pasien} -> update (Memperbarui pasien)
+    // PUT/PATCH /api/pasien/{pasien} -> update (Memperbarui pasien)    
     Route::match(['put', 'patch'], '/{pasien}', [PasienController::class, 'update']);
 
     // DELETE /api/pasien/{pasien} -> destroy (Menghapus pasien)
@@ -46,5 +46,11 @@ Route::prefix('medical-records')->group(function () {
     // POST /api/medical-records
     // Menyimpan riwayat medis baru untuk pasien tertentu
     Route::post('/', [MedicalRecordController::class, 'store']);
+    // PUT/PATCH /api/medical-records/{record}
+    // Memperbarui riwayat medis berdasarkan ID
+    Route::match(['put', 'patch'], '/{record}', [MedicalRecordController::class, 'update']);
+
+    Route::delete('/{record}', [MedicalRecordController::class, 'destroy']);
+
 });
 

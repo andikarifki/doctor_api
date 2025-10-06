@@ -26,4 +26,33 @@ class MedicalRecordController extends Controller
         // 3. Beri respons sukses
         return response()->json($record, 201);
     }
+
+    public function update(Request $request, MedicalRecord $record)
+    {
+        // 1. Validasi data yang akan diupdate
+        $validatedData = $request->validate([
+            // Rule 'sometimes' digunakan agar field tidak wajib diisi dalam request
+            // kecuali jika Anda ingin membuatnya wajib diupdate. 
+            // 'exists' tetap harus dipertahankan untuk memastikan pasien_id valid jika dikirim.
+            'pasien_id' => 'sometimes|required|exists:pasien,id',
+            'tanggal_periksa' => 'sometimes|required|date',
+            'diagnosis' => 'sometimes|required|string',
+            'obat' => 'sometimes|required|string',
+            'lokasi_berobat' => 'sometimes|required|string',
+        ]);
+
+        // 2. Perbarui Riwayat Medis
+        $record->update($validatedData);
+
+        // 3. Beri respons sukses (HTTP 200 OK) dengan data yang telah diperbarui
+        return response()->json($record, 200);
+    }
+    public function destroy(MedicalRecord $record)
+    {
+        // Hapus Riwayat Medis dari database
+        $record->delete();
+
+        // Beri respons sukses tanpa konten (HTTP 204 No Content)
+        return response()->json(null, 204);
+    }
 }
