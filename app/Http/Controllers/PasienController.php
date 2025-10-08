@@ -14,6 +14,7 @@ class PasienController extends Controller
      */
     public function index(): JsonResponse
     {
+        // Gunakan 'paginate' jika daftar pasien mungkin besar untuk performa yang lebih baik.
         $patients = Pasien::with('medicalRecords')->get();
         return response()->json($patients);
     }
@@ -27,13 +28,15 @@ class PasienController extends Controller
             // Validasi data masukan
             $validatedData = $request->validate([
                 'nama' => 'required|string|max:255',
-                // Pastikan format tanggal dan tidak di masa lalu
-                'tanggal' => 'required|date',
-                // Status hanya boleh 'Terdaftar' atau 'Selesai', dengan default 'Terdaftar'
-                'status' => 'sometimes|in:Terdaftar,Selesai',
+                // PERBAIKAN 1: Gunakan nama kolom yang lebih spesifik, misal 'tanggal_lahir'
+                'tanggal' => 'required|date|before_or_equal:today',
+
+                // PERBAIKAN 2: Jika skema sudah diubah ke string/VARCHAR, validasi menggunakan nilai string yang baru
+                // Nilai ENUM 'Terdaftar' diganti 'Aktif', 'Selesai' diganti 'Tidak Aktif'
+                'status' => 'sometimes|string|in:Aktif,Tidak Aktif,Meninggal',
             ]);
 
-            // Jika status tidak dikirim, Model dan Migrasi akan menggunakan nilai default 'Terdaftar'.
+            // Jika 'status' tidak ada dalam request, nilai default akan ditangani oleh skema database ('Aktif').
             $pasien = Pasien::create($validatedData);
 
             return response()->json($pasien, 201); // 201 Created
@@ -47,14 +50,13 @@ class PasienController extends Controller
 
     /**
      * Menampilkan data pasien spesifik.
-     * Menggunakan Route Model Binding ($pasien).
+     * Menggunakan Route Model Binding ($pasien) untuk konsistensi.
      */
-    public function show(string $id)
+    public function show(Pasien $pasien): JsonResponse
     {
-        // Menggunakan 'with' untuk memuat (eager load) relasi 'medicalRecords'
-        $pasien = Pasien::with('medicalRecords')->findOrFail($id);
+        // Route Model Binding otomatis menemukan pasien. Kita hanya perlu memuat relasi.
+        $pasien->load('medicalRecords');
 
-        // Response akan mencakup pasien dan array 'medical_records'
         return response()->json($pasien);
     }
 
@@ -67,8 +69,9 @@ class PasienController extends Controller
             // Validasi data masukan
             $validatedData = $request->validate([
                 'nama' => 'sometimes|string|max:255',
-                'tanggal' => 'sometimes|date', // Tidak perlu after_or_equal:today jika hanya update
-                'status' => 'sometimes|in:Terdaftar,Selesai',
+                'tanggal' => 'sometimes|date', // 'before_or_equal:today' bisa ditambahkan jika ini adalah tanggal lahir
+                // PERBAIKAN 3: Validasi status yang diperbarui (menggunakan string baru)
+                'status' => 'sometimes|string|in:Aktif,Tidak Aktif,Meninggal',
             ]);
 
             $pasien->update($validatedData);
@@ -87,6 +90,9 @@ class PasienController extends Controller
      */
     public function destroy(Pasien $pasien): JsonResponse
     {
+        // Anda mungkin ingin menambahkan logika untuk memastikan tidak ada medical record yang terkait
+        // atau mengandalkan foreign key constraint di database.
+
         $pasien->delete();
         return response()->json(null, 204); // 204 No Content
     }
