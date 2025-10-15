@@ -17,17 +17,18 @@ class AuthController extends Controller
     {
         $request->validate([
             'name' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255|unique:users',
+            'username' => 'required|string|max:255|unique:users',
+            'email' => 'nullable|string|email|max:255|unique:users',
             'password' => 'required|string|min:8|confirmed',
         ]);
 
         $user = User::create([
             'name' => $request->name,
+            'username' => $request->username,
             'email' => $request->email,
             'password' => Hash::make($request->password),
         ]);
 
-        // Buat token Sanctum
         $token = $user->createToken('auth_token')->plainTextToken;
 
         return response()->json([
@@ -43,22 +44,18 @@ class AuthController extends Controller
     public function login(Request $request)
     {
         $request->validate([
-            'email' => 'required|string|email',
+            'username' => 'required|string',
             'password' => 'required|string',
         ]);
 
-        // Coba otentikasi
-        if (!Auth::attempt($request->only('email', 'password'))) {
+        if (! Auth::attempt($request->only('username', 'password'))) {
             throw ValidationException::withMessages([
-                'email' => ['Kredensial yang diberikan tidak cocok dengan catatan kami.'],
+                'username' => ['Kredensial yang diberikan tidak cocok dengan catatan kami.'],
             ]);
         }
 
         $user = Auth::user();
-        // Hapus token lama user jika diperlukan (opsional)
-        $user->tokens()->delete();
-
-        // Buat token baru
+        $user->tokens()->delete(); // opsional
         $token = $user->createToken('auth_token')->plainTextToken;
 
         return response()->json([
