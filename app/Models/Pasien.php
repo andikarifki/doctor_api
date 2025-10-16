@@ -17,6 +17,7 @@ class Pasien extends Model
      * Kolom yang diizinkan untuk diisi secara massal (Mass Assignment).
      */
     protected $fillable = [
+        'praktik_id',
         'nama',
         'tanggal',
         'status',
@@ -28,6 +29,12 @@ class Pasien extends Model
     protected $casts = [
         'tanggal' => 'date', // Mengubah string tanggal dari DB menjadi objek Carbon
     ];
+
+    public function praktik()
+    {
+        return $this->belongsTo(PendaftaranPraktik::class);
+    }
+
     public function medicalRecords(): HasMany
     {
         // Satu Pasien punya banyak Riwayat Medis

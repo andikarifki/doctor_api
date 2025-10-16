@@ -3,97 +3,149 @@
 namespace App\Http\Controllers;
 
 use App\Models\Pasien;
-use Illuminate\Http\Request;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
 
 class PasienController extends Controller
 {
     /**
-     * Menampilkan daftar semua pasien.
+     * 🩺 Menampilkan daftar semua pasien (dengan praktik & rekam medis).
      */
     public function index(): JsonResponse
     {
-        // Gunakan 'paginate' jika daftar pasien mungkin besar untuk performa yang lebih baik.
-        $patients = Pasien::with('medicalRecords')->get();
-        return response()->json($patients);
+        $pasiens = Pasien::with(['praktik', 'medicalRecords'])->get();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Daftar pasien berhasil diambil.',
+            'data' => $pasiens,
+        ]);
     }
 
     /**
-     * Menyimpan data pasien baru.
+     * 🏥 Menyimpan data pasien baru.
      */
     public function store(Request $request): JsonResponse
     {
         try {
-            // Validasi data masukan
-            $validatedData = $request->validate([
+            $validated = $request->validate([
+                'praktik_id' => 'required|exists:pendaftaran_praktik,id',
                 'nama' => 'required|string|max:255',
-                // PERBAIKAN 1: Gunakan nama kolom yang lebih spesifik, misal 'tanggal_lahir'
                 'tanggal' => 'required|date|before_or_equal:today',
-
-                // PERBAIKAN 2: Jika skema sudah diubah ke string/VARCHAR, validasi menggunakan nilai string yang baru
-                // Nilai ENUM 'Terdaftar' diganti 'Aktif', 'Selesai' diganti 'Tidak Aktif'
                 'status' => 'sometimes|string|in:Aktif,Tidak Aktif,Meninggal',
             ]);
 
-            // Jika 'status' tidak ada dalam request, nilai default akan ditangani oleh skema database ('Aktif').
-            $pasien = Pasien::create($validatedData);
+            $pasien = Pasien::create($validated);
+            $pasien->load('praktik');
 
-            return response()->json($pasien, 201); // 201 Created
+            return response()->json([
+                'success' => true,
+                'message' => 'Pasien berhasil ditambahkan.',
+                'data' => $pasien,
+            ], 201);
         } catch (ValidationException $e) {
             return response()->json([
+                'success' => false,
                 'message' => 'Validasi gagal.',
-                'errors' => $e->errors()
-            ], 422); // 422 Unprocessable Entity
-        }
-    }
-
-    /**
-     * Menampilkan data pasien spesifik.
-     * Menggunakan Route Model Binding ($pasien) untuk konsistensi.
-     */
-    public function show(Pasien $pasien): JsonResponse
-    {
-        // Route Model Binding otomatis menemukan pasien. Kita hanya perlu memuat relasi.
-        $pasien->load('medicalRecords');
-
-        return response()->json($pasien);
-    }
-
-    /**
-     * Memperbarui data pasien spesifik.
-     */
-    public function update(Request $request, Pasien $pasien): JsonResponse
-    {
-        try {
-            // Validasi data masukan
-            $validatedData = $request->validate([
-                'nama' => 'sometimes|string|max:255',
-                'tanggal' => 'sometimes|date', // 'before_or_equal:today' bisa ditambahkan jika ini adalah tanggal lahir
-                // PERBAIKAN 3: Validasi status yang diperbarui (menggunakan string baru)
-                'status' => 'sometimes|string|in:Aktif,Tidak Aktif,Meninggal',
-            ]);
-
-            $pasien->update($validatedData);
-
-            return response()->json($pasien);
-        } catch (ValidationException $e) {
-            return response()->json([
-                'message' => 'Validasi gagal.',
-                'errors' => $e->errors()
+                'errors' => $e->errors(),
             ], 422);
         }
     }
 
     /**
-     * Menghapus data pasien spesifik.
+     * 🔍 Menampilkan data pasien spesifik berdasarkan ID.
      */
-    public function destroy(Pasien $pasien): JsonResponse
+    public function show($id): JsonResponse
     {
-        // Anda mungkin ingin menambahkan logika untuk memastikan tidak ada medical record yang terkait
-        // atau mengandalkan foreign key constraint di database.
+        try {
+            $pasien = Pasien::with(['praktik', 'medicalRecords'])->findOrFail($id);
 
-        $pasien->delete();
-        return response()->json(null, 204); // 204 No Content
+            return response()->json([
+                'success' => true,
+                'message' => 'Data pasien ditemukan.',
+                'data' => $pasien,
+            ]);
+        } catch (ModelNotFoundException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Pasien tidak ditemukan.',
+            ], 404);
+        }
+    }
+
+    /**
+     * ✏️ Memperbarui data pasien.
+     */
+    public function update(Request $request, $id): JsonResponse
+    {
+        try {
+            $pasien = Pasien::findOrFail($id);
+
+            $validated = $request->validate([
+                'praktik_id' => 'sometimes|exists:pendaftaran_praktik,id',
+                'nama' => 'sometimes|string|max:255',
+                'tanggal' => 'sometimes|date|before_or_equal:today',
+                'status' => 'sometimes|string|in:Aktif,Tidak Aktif,Meninggal',
+            ]);
+
+            $pasien->update($validated);
+            $pasien->load(['praktik', 'medicalRecords']);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Data pasien berhasil diperbarui.',
+                'data' => $pasien,
+            ]);
+        } catch (ModelNotFoundException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Pasien tidak ditemukan.',
+            ], 404);
+        } catch (ValidationException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Validasi gagal.',
+                'errors' => $e->errors(),
+            ], 422);
+        }
+    }
+
+    /**
+     * 🗑️ Menghapus data pasien spesifik.
+     */
+    public function destroy($id): JsonResponse
+    {
+        try {
+            $pasien = Pasien::findOrFail($id);
+            $pasien->delete();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Pasien berhasil dihapus.',
+            ], 200);
+        } catch (ModelNotFoundException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Pasien tidak ditemukan.',
+            ], 404);
+        }
+    }
+
+    /**
+     * 🔗 (Opsional) Menampilkan pasien berdasarkan praktik tertentu.
+     */
+    public function getByPraktik($praktik_id): JsonResponse
+    {
+        $pasiens = Pasien::with('medicalRecords')
+            ->where('praktik_id', $praktik_id)
+            ->get();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Daftar pasien berdasarkan praktik.',
+            'data' => $pasiens,
+        ]);
     }
 }

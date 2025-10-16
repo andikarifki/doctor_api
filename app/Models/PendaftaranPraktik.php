@@ -24,6 +24,11 @@ class PendaftaranPraktik extends Model
         'tanggal_daftar',
     ];
 
+    public function pasien()
+    {
+        return $this->hasMany(Pasien::class);
+    }
+
     /**
      * The attributes that should be cast.
      * Konversi tipe data otomatis (Casting).
