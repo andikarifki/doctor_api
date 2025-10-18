@@ -1,11 +1,10 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
-use App\Http\Controllers\PendaftaranPraktikController;
-use App\Http\Controllers\PasienController; // Pastikan ini diimpor!
-use App\Http\Controllers\MedicalRecordController; // Pastikan ini diimpor!
-
+use App\Http\Controllers\MedicalRecordController;
+use App\Http\Controllers\PasienController;
+use App\Http\Controllers\PendaftaranPraktikController; // Pastikan ini diimpor!
+use Illuminate\Support\Facades\Route; // Pastikan ini diimpor!
 
 // Route Public (Tidak memerlukan token)
 Route::post('/register', [AuthController::class, 'register']);
@@ -24,6 +23,8 @@ Route::middleware('auth:sanctum')->group(function () {
 
 // di routes/api.php
 Route::apiResource('pendaftaran-praktik', PendaftaranPraktikController::class);
+Route::get('pasien/praktik/{praktik_id}', [PasienController::class, 'indexByPraktikId']);
+Route::get('pasien/{id}/praktik/{praktikId}', [PasienController::class, 'showByPasienAndPraktik']);
 
 Route::prefix('pasien')->group(function () {
     // GET /api/pasien -> index (Menampilkan semua pasien)
@@ -35,7 +36,7 @@ Route::prefix('pasien')->group(function () {
     // GET /api/pasien/{pasien} -> show (Menampilkan pasien spesifik)
     Route::get('/{pasien}', [PasienController::class, 'show']);
 
-    // PUT/PATCH /api/pasien/{pasien} -> update (Memperbarui pasien)    
+    // PUT/PATCH /api/pasien/{pasien} -> update (Memperbarui pasien)
     Route::match(['put', 'patch'], '/{pasien}', [PasienController::class, 'update']);
 
     // DELETE /api/pasien/{pasien} -> destroy (Menghapus pasien)
@@ -53,4 +54,3 @@ Route::prefix('medical-records')->group(function () {
     Route::delete('/{record}', [MedicalRecordController::class, 'destroy']);
 
 });
-

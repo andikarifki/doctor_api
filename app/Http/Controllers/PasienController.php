@@ -25,6 +25,22 @@ class PasienController extends Controller
     }
 
     /**
+     * 🔗 Menampilkan daftar pasien berdasarkan ID praktik.
+     */
+    public function indexByPraktikId($praktik_id): JsonResponse
+    {
+        $pasiens = Pasien::with(['praktik', 'medicalRecords']) // Tambahkan 'praktik' untuk konsistensi
+            ->where('praktik_id', $praktik_id)
+            ->get();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Daftar pasien berdasarkan praktik.',
+            'data' => $pasiens,
+        ]);
+    }
+
+    /**
      * 🏥 Menyimpan data pasien baru.
      */
     public function store(Request $request): JsonResponse
@@ -33,7 +49,7 @@ class PasienController extends Controller
             $validated = $request->validate([
                 'praktik_id' => 'required|exists:pendaftaran_praktik,id',
                 'nama' => 'required|string|max:255',
-                'tanggal' => 'required|date|before_or_equal:today',
+                'tanggal' => 'required|date',
                 'status' => 'sometimes|string|in:Aktif,Tidak Aktif,Meninggal',
             ]);
 
@@ -55,11 +71,13 @@ class PasienController extends Controller
     }
 
     /**
-     * 🔍 Menampilkan data pasien spesifik berdasarkan ID.
+     * 🔍 Menampilkan data pasien spesifik berdasarkan ID pasien.
+     * Catatan: Untuk keamanan, Anda mungkin ingin menggunakan showByPasienAndPraktik.
      */
     public function show($id): JsonResponse
     {
         try {
+            // Logika tetap sama (hanya mencari berdasarkan ID pasien)
             $pasien = Pasien::with(['praktik', 'medicalRecords'])->findOrFail($id);
 
             return response()->json([
@@ -71,6 +89,34 @@ class PasienController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Pasien tidak ditemukan.',
+            ], 404);
+        }
+    }
+
+    // --- FUNGSI BARU UNTUK KEAMANAN DAN KONSISTENSI ---
+
+    /**
+     * 🔑 Menampilkan data pasien spesifik berdasarkan ID pasien DAN ID praktik.
+     * Ini disarankan untuk API multi-tenancy.
+     */
+    public function showByPasienAndPraktik($id, $praktikId): JsonResponse
+    {
+        try {
+            // Filter ganda: Pasien harus memiliki ID=$id DAN praktik_id=$praktikId
+            $pasien = Pasien::where('praktik_id', $praktikId)
+                ->with(['praktik', 'medicalRecords'])
+                ->findOrFail($id);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Data pasien ditemukan dalam praktik yang spesifik.',
+                'data' => $pasien,
+            ]);
+        } catch (ModelNotFoundException $e) {
+            // Jika ID pasien tidak ada, atau jika ID pasien ada tapi praktik_id tidak cocok
+            return response()->json([
+                'success' => false,
+                'message' => 'Pasien tidak ditemukan dalam praktik ini.',
             ], 404);
         }
     }
@@ -131,21 +177,5 @@ class PasienController extends Controller
                 'message' => 'Pasien tidak ditemukan.',
             ], 404);
         }
-    }
-
-    /**
-     * 🔗 (Opsional) Menampilkan pasien berdasarkan praktik tertentu.
-     */
-    public function getByPraktik($praktik_id): JsonResponse
-    {
-        $pasiens = Pasien::with('medicalRecords')
-            ->where('praktik_id', $praktik_id)
-            ->get();
-
-        return response()->json([
-            'success' => true,
-            'message' => 'Daftar pasien berdasarkan praktik.',
-            'data' => $pasiens,
-        ]);
     }
 }
