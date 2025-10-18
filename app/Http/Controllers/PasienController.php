@@ -29,7 +29,7 @@ class PasienController extends Controller
      */
     public function indexByPraktikId($praktik_id): JsonResponse
     {
-        $pasiens = Pasien::with(['praktik', 'medicalRecords']) // Tambahkan 'praktik' untuk konsistensi
+        $pasiens = Pasien::with(['praktik', 'medicalRecords'])
             ->where('praktik_id', $praktik_id)
             ->get();
 
@@ -72,12 +72,10 @@ class PasienController extends Controller
 
     /**
      * 🔍 Menampilkan data pasien spesifik berdasarkan ID pasien.
-     * Catatan: Untuk keamanan, Anda mungkin ingin menggunakan showByPasienAndPraktik.
      */
     public function show($id): JsonResponse
     {
         try {
-            // Logika tetap sama (hanya mencari berdasarkan ID pasien)
             $pasien = Pasien::with(['praktik', 'medicalRecords'])->findOrFail($id);
 
             return response()->json([
@@ -93,7 +91,34 @@ class PasienController extends Controller
         }
     }
 
-    // --- FUNGSI BARU UNTUK KEAMANAN DAN KONSISTENSI ---
+    // --- FUNGSI PENCARIAN BARU (Sudah Anda Tambahkan) ---
+
+    /**
+     * 🔎 Mencari daftar pasien berdasarkan nama (pencarian parsial).
+     */
+    public function searchByName($name): JsonResponse
+    {
+        // Gunakan where...like untuk pencarian parsial (case-insensitive di MySQL)
+        $pasiens = Pasien::with(['praktik', 'medicalRecords'])
+            ->where('nama', 'LIKE', '%'.$name.'%')
+            ->get();
+
+        if ($pasiens->isEmpty()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Pasien dengan nama "'.$name.'" tidak ditemukan.',
+                'data' => [],
+            ], 404);
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Daftar pasien berdasarkan pencarian nama berhasil diambil.',
+            'data' => $pasiens,
+        ]);
+    }
+
+    // --- FUNGSI KEAMANAN DAN KONSISTENSI (Sudah Anda Tambahkan) ---
 
     /**
      * 🔑 Menampilkan data pasien spesifik berdasarkan ID pasien DAN ID praktik.
@@ -170,6 +195,7 @@ class PasienController extends Controller
             return response()->json([
                 'success' => true,
                 'message' => 'Pasien berhasil dihapus.',
+                'data' => null, // Mengembalikan data null karena sudah dihapus
             ], 200);
         } catch (ModelNotFoundException $e) {
             return response()->json([

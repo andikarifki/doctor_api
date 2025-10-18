@@ -25,6 +25,7 @@ Route::middleware('auth:sanctum')->group(function () {
 Route::apiResource('pendaftaran-praktik', PendaftaranPraktikController::class);
 Route::get('pasien/praktik/{praktik_id}', [PasienController::class, 'indexByPraktikId']);
 Route::get('pasien/{id}/praktik/{praktikId}', [PasienController::class, 'showByPasienAndPraktik']);
+Route::get('/pasien/{name}', [PasienController::class, 'searchByName']);
 
 Route::prefix('pasien')->group(function () {
     // GET /api/pasien -> index (Menampilkan semua pasien)
@@ -35,6 +36,7 @@ Route::prefix('pasien')->group(function () {
 
     // GET /api/pasien/{pasien} -> show (Menampilkan pasien spesifik)
     Route::get('/{pasien}', [PasienController::class, 'show']);
+    Route::get('/search/{name}', [PasienController::class, 'searchByName']);
 
     // PUT/PATCH /api/pasien/{pasien} -> update (Memperbarui pasien)
     Route::match(['put', 'patch'], '/{pasien}', [PasienController::class, 'update']);
