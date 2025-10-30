@@ -7,9 +7,8 @@ return [
     | Laravel CORS Configuration
     |--------------------------------------------------------------------------
     |
-    | Konfigurasi ini mengatur CORS (Cross-Origin Resource Sharing) agar
-    | frontend (misalnya Vite di localhost:5173) bisa komunikasi dengan backend.
-    | Jangan lupa set supports_credentials = true kalau pakai Sanctum.
+    | Konfigurasi ini mengatur izin Cross-Origin supaya frontend bisa akses
+    | API Laravel. Pastikan "supports_credentials" true untuk Sanctum.
     |
     */
 
@@ -25,11 +24,11 @@ return [
     'allowed_methods' => ['*'],
 
     'allowed_origins' => [
+        // 🧠 Tambahkan semua domain frontend yang butuh akses ke API
         'http://localhost:5173',
         'http://127.0.0.1:5173',
-        // Tambahkan juga jika nanti pakai ngrok atau domain hosting
-        // 'https://orthognathous-robert-nonprejudicially.ngrok-free.dev',
-        // 'https://example.practic-doctor.biz.id',
+        'https://example.practic-doctor.biz.id',
+        'https://orthognathous-robert-nonprejudicially.ngrok-free.dev',
     ],
 
     'allowed_origins_patterns' => [],
@@ -40,7 +39,7 @@ return [
 
     'max_age' => 0,
 
-    // 🟢 penting! biar cookie/session bisa dikirim antar domain
+    // 🟢 penting! biar cookie dan session Sanctum bisa ikut
     'supports_credentials' => true,
 
 ];
