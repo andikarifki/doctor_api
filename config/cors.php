@@ -27,7 +27,7 @@ return [
         // 🧠 Tambahkan semua domain frontend yang butuh akses ke API
         'http://localhost:5173',
         'http://127.0.0.1:5173',
-        'https://example.practic-doctor.biz.id',
+        'https://api.practic-doctor.biz.id',
         'https://orthognathous-robert-nonprejudicially.ngrok-free.dev',
     ],
 

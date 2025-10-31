@@ -3,8 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\PendaftaranPraktik;
-use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
 
 class PendaftaranPraktikController extends Controller
@@ -16,6 +16,7 @@ class PendaftaranPraktikController extends Controller
     {
         // Mengambil semua data pendaftaran
         $pendaftaran = PendaftaranPraktik::all();
+
         return response()->json($pendaftaran);
     }
 
@@ -27,10 +28,8 @@ class PendaftaranPraktikController extends Controller
         try {
             // Validasi data masukan
             $validatedData = $request->validate([
-                // lokasi_praktik bersifat opsional (karena punya nilai default di migrasi)
                 'lokasi_praktik' => 'sometimes|string|max:255',
-                // tanggal_daftar wajib, harus berupa tanggal, dan tidak boleh di masa lalu (hari ini atau setelahnya)
-                'tanggal_daftar' => 'required|date|after_or_equal:today',
+                'tanggal_daftar' => 'required|date',
             ]);
 
             // Membuat entri baru di database
@@ -41,7 +40,7 @@ class PendaftaranPraktikController extends Controller
             // Menangani kegagalan validasi
             return response()->json([
                 'message' => 'Validasi gagal.',
-                'errors' => $e->errors()
+                'errors' => $e->errors(),
             ], 422); // 422 Unprocessable Entity
         }
     }
@@ -64,7 +63,7 @@ class PendaftaranPraktikController extends Controller
             // Validasi data masukan (menggunakan 'sometimes' untuk update)
             $validatedData = $request->validate([
                 'lokasi_praktik' => 'sometimes|string|max:255',
-                'tanggal_daftar' => 'sometimes|date|after_or_equal:today',
+                'tanggal_daftar' => 'sometimes|date',
             ]);
 
             // Memperbarui data yang ada
@@ -74,7 +73,7 @@ class PendaftaranPraktikController extends Controller
         } catch (ValidationException $e) {
             return response()->json([
                 'message' => 'Validasi gagal saat update.',
-                'errors' => $e->errors()
+                'errors' => $e->errors(),
             ], 422);
         }
     }
@@ -85,6 +84,7 @@ class PendaftaranPraktikController extends Controller
     public function destroy(PendaftaranPraktik $pendaftaranPraktik): JsonResponse
     {
         $pendaftaranPraktik->delete();
+
         return response()->json(null, 204); // 204 No Content
     }
 }
