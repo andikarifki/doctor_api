@@ -52,7 +52,7 @@ class PasienController extends Controller
                 'nik' => 'required|string|size:16|unique:pasien,nik', // NIK harus 16 digit dan unik
                 'nama' => 'required|string|max:255',
                 'tanggal' => 'required|date',
-                'status' => 'sometimes|string|in:Aktif,Tidak Aktif,Meninggal',
+                'status' => 'sometimes|string|in:Aktif,Tidak Aktif',
             ]);
 
             $pasien = Pasien::create($validated);
