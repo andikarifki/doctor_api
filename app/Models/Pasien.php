@@ -18,6 +18,7 @@ class Pasien extends Model
      */
     protected $fillable = [
         'praktik_id',
+        'nik',
         'nama',
         'tanggal',
         'status',

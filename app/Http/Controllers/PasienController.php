@@ -46,8 +46,10 @@ class PasienController extends Controller
     public function store(Request $request): JsonResponse
     {
         try {
+            // Ditambahkan validasi untuk NIK: wajib, 16 digit, dan unik di tabel 'pasien'
             $validated = $request->validate([
                 'praktik_id' => 'required|exists:pendaftaran_praktik,id',
+                'nik' => 'required|string|size:16|unique:pasien,nik', // NIK harus 16 digit dan unik
                 'nama' => 'required|string|max:255',
                 'tanggal' => 'required|date',
                 'status' => 'sometimes|string|in:Aktif,Tidak Aktif,Meninggal',
@@ -91,8 +93,6 @@ class PasienController extends Controller
         }
     }
 
-    // --- FUNGSI PENCARIAN BARU (Sudah Anda Tambahkan) ---
-
     /**
      * 🔎 Mencari daftar pasien berdasarkan nama (pencarian parsial).
      */
@@ -117,8 +117,6 @@ class PasienController extends Controller
             'data' => $pasiens,
         ]);
     }
-
-    // --- FUNGSI KEAMANAN DAN KONSISTENSI (Sudah Anda Tambahkan) ---
 
     /**
      * 🔑 Menampilkan data pasien spesifik berdasarkan ID pasien DAN ID praktik.
@@ -154,8 +152,10 @@ class PasienController extends Controller
         try {
             $pasien = Pasien::findOrFail($id);
 
+            // Validasi untuk NIK: string, 16 digit. 'unique' dikecualikan untuk data pasien saat ini.
             $validated = $request->validate([
                 'praktik_id' => 'sometimes|exists:pendaftaran_praktik,id',
+                'nik' => 'sometimes|string|size:16|unique:pasien,nik,'.$id, // NIK diizinkan sama dengan NIK pasien saat ini ($id)
                 'nama' => 'sometimes|string|max:255',
                 'tanggal' => 'sometimes|date|before_or_equal:today',
                 'status' => 'sometimes|string|in:Aktif,Tidak Aktif,Meninggal',

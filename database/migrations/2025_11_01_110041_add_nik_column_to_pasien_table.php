@@ -12,8 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('pasien', function (Blueprint $table) {
-            $table->unsignedBigInteger('praktik_id')->after('id');
-            $table->foreign('praktik_id')->references('id')->on('pendaftaran_praktik')->onDelete('cascade');
+            $table->string('nik', 16)->unique()->after('id'); // Ganti 'id' dengan nama kolom setelah NIK ingin diletakkan
         });
     }
 
