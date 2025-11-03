@@ -31,9 +31,15 @@ class Pasien extends Model
         'tanggal' => 'date', // Mengubah string tanggal dari DB menjadi objek Carbon
     ];
 
-    public function praktik()
+    public function praktiks()
     {
-        return $this->belongsTo(PendaftaranPraktik::class);
+        return $this->belongsToMany(
+            PendaftaranPraktik::class,  // model praktik kamu (kalau namanya lain sesuaikan)
+            'pasien_praktik',           // nama tabel pivot
+            'pasien_id',                // foreign key di pivot
+            'praktik_id'                // foreign key di tabel tujuan
+        )->withPivot(['tanggal_daftar', 'status'])
+            ->withTimestamps();
     }
 
     public function medicalRecords(): HasMany

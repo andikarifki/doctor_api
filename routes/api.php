@@ -26,6 +26,8 @@ Route::apiResource('pendaftaran-praktik', PendaftaranPraktikController::class);
 Route::get('pasien/praktik/{praktik_id}', [PasienController::class, 'indexByPraktikId']);
 Route::get('pasien/{id}/praktik/{praktikId}', [PasienController::class, 'showByPasienAndPraktik']);
 Route::get('/pasien/{name}', [PasienController::class, 'searchByName']);
+Route::get('/pasien', [PasienController::class, 'index']);
+Route::post('/pasien/{id}/praktik', [PasienController::class, 'tambahPraktik']);
 
 Route::prefix('pasien')->group(function () {
     // GET /api/pasien -> index (Menampilkan semua pasien)
