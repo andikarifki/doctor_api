@@ -242,7 +242,6 @@ class PasienController extends Controller
             // Tambahkan ke pivot
             $pasien->praktiks()->attach($validated['praktik_id'], [
                 'tanggal_daftar' => $validated['tanggal_daftar'] ?? now(),
-                'status' => $validated['status'] ?? 'Aktif',
             ]);
 
             $pasien->load('praktiks');

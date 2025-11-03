@@ -38,7 +38,7 @@ class Pasien extends Model
             'pasien_praktik',           // nama tabel pivot
             'pasien_id',                // foreign key di pivot
             'praktik_id'                // foreign key di tabel tujuan
-        )->withPivot(['tanggal_daftar', 'status'])
+        )->withPivot(['tanggal_daftar'])
             ->withTimestamps();
     }
 

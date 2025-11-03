@@ -27,7 +27,7 @@ class PendaftaranPraktik extends Model
     public function pasien()
     {
         return $this->belongsToMany(Pasien::class, 'pasien_praktik')
-            ->withPivot(['tanggal_daftar', 'status'])
+            ->withPivot(['tanggal_daftar'])
             ->withTimestamps();
     }
 
