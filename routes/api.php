@@ -3,7 +3,7 @@
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\MedicalRecordController;
 use App\Http\Controllers\PasienController;
-use App\Http\Controllers\PendaftaranPraktikController; // Pastikan ini diimpor!
+use App\Http\Controllers\PendaftaranPraktikController;
 use Illuminate\Support\Facades\Route; // Pastikan ini diimpor!
 
 // Route Public (Tidak memerlukan token)
@@ -21,30 +21,20 @@ Route::middleware('auth:sanctum')->group(function () {
     // });
 });
 
-// di routes/api.php
 Route::apiResource('pendaftaran-praktik', PendaftaranPraktikController::class);
-Route::get('pasien/praktik/{praktik_id}', [PasienController::class, 'indexByPraktikId']);
-Route::get('pasien/{id}/praktik/{praktikId}', [PasienController::class, 'showByPasienAndPraktik']);
-Route::get('/pasien/{name}', [PasienController::class, 'searchByName']);
-Route::get('/pasien', [PasienController::class, 'index']);
-Route::post('/pasien/{id}/praktik', [PasienController::class, 'tambahPraktik']);
 
 Route::prefix('pasien')->group(function () {
-    // GET /api/pasien -> index (Menampilkan semua pasien)
-    Route::get('/', [PasienController::class, 'index']);
+    Route::get('/', [PasienController::class, 'index']); // semua pasien
+    Route::post('/', [PasienController::class, 'store']); // tambah pasien
 
-    // POST /api/pasien -> store (Menyimpan pasien baru)
-    Route::post('/', [PasienController::class, 'store']);
+    Route::get('/praktik/{praktik_id}', [PasienController::class, 'indexByPraktikId']); // pasien per praktik
+    Route::get('/{id}/praktik/{praktikId}', [PasienController::class, 'showByPasienAndPraktik']); // 1 pasien di praktik
+    Route::get('/show/{id}', [PasienController::class, 'show']); // tampil 1 pasien
+    Route::get('/search/{name}', [PasienController::class, 'searchByName']); // cari nama
 
-    // GET /api/pasien/{pasien} -> show (Menampilkan pasien spesifik)
-    Route::get('/{pasien}', [PasienController::class, 'show']);
-    Route::get('/search/{name}', [PasienController::class, 'searchByName']);
-
-    // PUT/PATCH /api/pasien/{pasien} -> update (Memperbarui pasien)
-    Route::match(['put', 'patch'], '/{pasien}', [PasienController::class, 'update']);
-
-    // DELETE /api/pasien/{pasien} -> destroy (Menghapus pasien)
-    Route::delete('/{pasien}', [PasienController::class, 'destroy']);
+    Route::post('/{id}/praktik', [PasienController::class, 'tambahPraktik']); // tambah praktik ke pasien
+    Route::match(['put', 'patch'], '/{id}', [PasienController::class, 'update']); // update pasien
+    Route::delete('/{id}', [PasienController::class, 'destroy']); // hapus pasien
 });
 
 Route::prefix('medical-records')->group(function () {

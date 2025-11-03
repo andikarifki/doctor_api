@@ -59,8 +59,6 @@ class PasienController extends Controller
                 'nama' => 'required|string|max:255',
                 'tanggal' => 'required|date',
                 'status' => 'sometimes|string|in:Aktif,Tidak Aktif',
-                'praktik_id' => 'required|exists:pendaftaran_praktik,id',
-                'tanggal_daftar' => 'sometimes|date',
             ]);
 
             $pasien = Pasien::create([
@@ -70,16 +68,9 @@ class PasienController extends Controller
                 'status' => $validated['status'] ?? 'Aktif',
             ]);
 
-            $pasien->praktiks()->attach($validated['praktik_id'], [
-                'tanggal_daftar' => $validated['tanggal_daftar'] ?? now(),
-                'status' => 'Aktif',
-            ]);
-
-            $pasien->load(['praktiks', 'medicalRecords']);
-
             return response()->json([
                 'success' => true,
-                'message' => 'Pasien berhasil ditambahkan dan didaftarkan ke praktik.',
+                'message' => 'Pasien berhasil ditambahkan.',
                 'data' => $pasien,
             ], 201);
 
@@ -232,7 +223,6 @@ class PasienController extends Controller
             $validated = $request->validate([
                 'praktik_id' => 'required|exists:pendaftaran_praktik,id',
                 'tanggal_daftar' => 'sometimes|date',
-                'status' => 'sometimes|string|in:Aktif,Tidak Aktif',
             ]);
 
             $pasien = Pasien::findOrFail($pasien_id);
