@@ -22,6 +22,7 @@ Route::middleware('auth:sanctum')->group(function () {
 });
 
 Route::apiResource('pendaftaran-praktik', PendaftaranPraktikController::class);
+Route::get('/pasien/{pasien_id}/praktik', [App\Http\Controllers\PasienController::class, 'listPraktiks']);
 
 Route::prefix('pasien')->group(function () {
     Route::get('/', [PasienController::class, 'index']); // semua pasien

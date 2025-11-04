@@ -26,6 +26,37 @@ class PasienController extends Controller
     }
 
     /**
+     * 📋 Menampilkan daftar semua praktik tempat pasien tertentu terdaftar.
+     */
+    public function listPraktiks($pasienId): JsonResponse
+    {
+        try {
+
+            $pasien = Pasien::findOrFail($pasienId);
+            $praktiks = $pasien->praktiks()->get();
+
+            if ($praktiks->isEmpty()) {
+                return response()->json([
+                    'success' => true, // Sukses menemukan pasien, tapi list praktiknya kosong
+                    'message' => 'Pasien ditemukan, tetapi belum terdaftar di praktik manapun.',
+                    'data' => $praktiks,
+                ]); // Menggunakan 200 OK karena pasiennya sendiri ditemukan
+            }
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Daftar praktik pasien berhasil diambil.',
+                'data' => $praktiks,
+            ]);
+        } catch (ModelNotFoundException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Pasien tidak ditemukan.',
+            ], 404);
+        }
+    }
+
+    /**
      * 🔗 Menampilkan daftar pasien berdasarkan ID praktik.
      */
     public function indexByPraktikId($praktik_id): JsonResponse
