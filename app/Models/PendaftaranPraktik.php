@@ -9,36 +9,38 @@ class PendaftaranPraktik extends Model
 {
     use HasFactory;
 
-    // Definisikan nama tabel secara eksplisit
+    /**
+     * Nama tabel di database
+     */
     protected $table = 'pendaftaran_praktik';
 
     /**
-     * The attributes that are mass assignable.
-     * Kolom-kolom yang aman untuk diisi secara massal (melalui create atau update).
-     * Pastikan hanya kolom yang ada di migrasi yang ada di sini.
-     *
-     * @var array<int, string>
+     * Kolom yang boleh diisi secara massal.
      */
     protected $fillable = [
         'lokasi_praktik',
         'tanggal_daftar',
     ];
 
-    public function pasien()
+    /**
+     * Relasi ke pasien — satu praktik bisa memiliki banyak pasien.
+     */
+    public function pasiens()
     {
-        return $this->belongsToMany(Pasien::class, 'pasien_praktik')
+        return $this->belongsToMany(
+            Pasien::class,          // Model tujuan
+            'pasien_praktik',       // Tabel pivot
+            'praktik_id',           // Foreign key di tabel pivot yang mengarah ke tabel ini
+            'pasien_id'             // Foreign key di tabel pivot yang mengarah ke tabel pasien
+        )
             ->withPivot(['tanggal_daftar'])
             ->withTimestamps();
     }
 
     /**
-     * The attributes that should be cast.
-     * Konversi tipe data otomatis (Casting).
-     *
-     * @var array<string, string>
+     * Casting otomatis — ubah string tanggal menjadi objek Carbon.
      */
     protected $casts = [
-        // Mengubah string tanggal dari database menjadi objek Carbon (untuk kemudahan manipulasi di PHP)
         'tanggal_daftar' => 'date',
     ];
 }

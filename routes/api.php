@@ -23,12 +23,13 @@ Route::middleware('auth:sanctum')->group(function () {
 
 Route::apiResource('pendaftaran-praktik', PendaftaranPraktikController::class);
 Route::get('/pasien/{pasien_id}/praktik', [App\Http\Controllers\PasienController::class, 'listPraktiks']);
+Route::get('/praktik/{id}/pasiens', [PasienController::class, 'indexByPraktikId']);
+Route::get('/praktik-dengan-pasien', [PendaftaranPraktikController::class, 'indexWithPasiens']);
 
 Route::prefix('pasien')->group(function () {
     Route::get('/', [PasienController::class, 'index']); // semua pasien
     Route::post('/', [PasienController::class, 'store']); // tambah pasien
 
-    Route::get('/praktik/{praktik_id}', [PasienController::class, 'indexByPraktikId']); // pasien per praktik
     Route::get('/{id}/praktik/{praktikId}', [PasienController::class, 'showByPasienAndPraktik']); // 1 pasien di praktik
     Route::get('/show/{id}', [PasienController::class, 'show']); // tampil 1 pasien
     Route::get('/search/{name}', [PasienController::class, 'searchByName']); // cari nama

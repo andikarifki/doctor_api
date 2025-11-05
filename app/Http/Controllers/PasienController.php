@@ -31,16 +31,15 @@ class PasienController extends Controller
     public function listPraktiks($pasienId): JsonResponse
     {
         try {
-
             $pasien = Pasien::findOrFail($pasienId);
             $praktiks = $pasien->praktiks()->get();
 
             if ($praktiks->isEmpty()) {
                 return response()->json([
-                    'success' => true, // Sukses menemukan pasien, tapi list praktiknya kosong
+                    'success' => true,
                     'message' => 'Pasien ditemukan, tetapi belum terdaftar di praktik manapun.',
                     'data' => $praktiks,
-                ]); // Menggunakan 200 OK karena pasiennya sendiri ditemukan
+                ]);
             }
 
             return response()->json([
@@ -61,22 +60,24 @@ class PasienController extends Controller
      */
     public function indexByPraktikId($praktik_id): JsonResponse
     {
-        $praktik = PendaftaranPraktik::find($praktik_id);
+        try {
+            $praktik = PendaftaranPraktik::findOrFail($praktik_id);
 
-        if (! $praktik) {
+            $pasiens = $praktik->pasiens()
+                ->with(['medicalRecords'])
+                ->get();
+
+            return response()->json([
+                'success' => true,
+                'message' => "Daftar pasien di praktik: {$praktik->lokasi_praktik}",
+                'data' => $pasiens,
+            ]);
+        } catch (ModelNotFoundException $e) {
             return response()->json([
                 'success' => false,
                 'message' => 'Praktik tidak ditemukan.',
             ], 404);
         }
-
-        $pasiens = $praktik->pasiens()->with(['medicalRecords'])->get();
-
-        return response()->json([
-            'success' => true,
-            'message' => 'Daftar pasien berdasarkan praktik.',
-            'data' => $pasiens,
-        ]);
     }
 
     /**
@@ -167,8 +168,7 @@ class PasienController extends Controller
         try {
             $pasien = Pasien::with(['praktiks' => function ($q) use ($praktikId) {
                 $q->where('pendaftaran_praktik.id', $praktikId);
-            }, 'medicalRecords'])
-                ->findOrFail($id);
+            }, 'medicalRecords'])->findOrFail($id);
 
             return response()->json([
                 'success' => true,
@@ -258,7 +258,6 @@ class PasienController extends Controller
 
             $pasien = Pasien::findOrFail($pasien_id);
 
-            // Cek apakah pasien sudah terdaftar di praktik tersebut
             $sudahTerdaftar = $pasien->praktiks()
                 ->where('praktik_id', $validated['praktik_id'])
                 ->exists();
@@ -270,7 +269,6 @@ class PasienController extends Controller
                 ], 409);
             }
 
-            // Tambahkan ke pivot
             $pasien->praktiks()->attach($validated['praktik_id'], [
                 'tanggal_daftar' => $validated['tanggal_daftar'] ?? now(),
             ]);
