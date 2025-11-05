@@ -56,6 +56,28 @@ class PasienController extends Controller
     }
 
     /**
+     * 🏥 Menampilkan semua lokasi praktik dengan daftar pasien masing-masing.
+     */
+    public function semuaLokasiDenganPasien(): JsonResponse
+    {
+        $praktiks = PendaftaranPraktik::with(['pasiens.medicalRecords'])->get();
+
+        if ($praktiks->isEmpty()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Belum ada data praktik atau pasien terdaftar.',
+                'data' => [],
+            ]);
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Daftar semua lokasi praktik beserta pasien berhasil diambil.',
+            'data' => $praktiks,
+        ]);
+    }
+
+    /**
      * 🔗 Menampilkan daftar pasien berdasarkan ID praktik.
      */
     public function indexByPraktikId($praktik_id): JsonResponse
