@@ -25,6 +25,7 @@ Route::apiResource('pendaftaran-praktik', PendaftaranPraktikController::class);
 Route::get('/pasien/{pasien_id}/praktik', [App\Http\Controllers\PasienController::class, 'listPraktiks']);
 Route::get('/praktik/{id}/pasiens', [PasienController::class, 'indexByPraktikId']);
 Route::get('/praktik/semua', [PasienController::class, 'semuaLokasiDenganPasien']);
+Route::delete('/praktik/{praktikId}/pasien/{pasienId}', [PendaftaranPraktikController::class, 'hapusPasienDariPraktik']);
 
 Route::prefix('pasien')->group(function () {
     Route::get('/', [PasienController::class, 'index']); // semua pasien

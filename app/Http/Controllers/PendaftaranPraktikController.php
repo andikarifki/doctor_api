@@ -87,4 +87,24 @@ class PendaftaranPraktikController extends Controller
 
         return response()->json(null, 204); // 204 No Content
     }
+
+    public function hapusPasienDariPraktik($praktikId, $pasienId)
+    {
+        try {
+            $praktik = PendaftaranPraktik::findOrFail($praktikId);
+
+            // Hapus relasi pasien dari praktik
+            $praktik->pasiens()->detach($pasienId);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Pasien berhasil dihapus dari praktik ini.',
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal menghapus pasien dari praktik: '.$e->getMessage(),
+            ], 500);
+        }
+    }
 }
