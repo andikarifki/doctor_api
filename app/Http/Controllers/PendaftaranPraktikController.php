@@ -14,10 +14,12 @@ class PendaftaranPraktikController extends Controller
      */
     public function index(): JsonResponse
     {
-        // Mengambil semua data pendaftaran
         $pendaftaran = PendaftaranPraktik::all();
 
-        return response()->json($pendaftaran);
+        return response()->json([
+            'success' => true,
+            'data' => $pendaftaran,
+        ]);
     }
 
     /**

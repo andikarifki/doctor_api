@@ -28,11 +28,6 @@ class MedicalRecord extends Model
         return $this->belongsTo(PendaftaranPraktik::class, 'praktik_id');
     }
 
-    public function medicalRecords()
-    {
-        return $this->hasMany(MedicalRecord::class, 'pasien_id');
-    }
-
     public function pendaftaranPraktik()
     {
         return $this->belongsTo(PendaftaranPraktik::class, 'pendaftaran_praktik_id');
