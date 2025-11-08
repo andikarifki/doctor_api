@@ -26,6 +26,7 @@ Route::get('/pasien/{pasien_id}/praktik', [App\Http\Controllers\PasienController
 Route::get('/praktik/{id}/pasiens', [PasienController::class, 'indexByPraktikId']);
 Route::get('/praktik/semua', [PasienController::class, 'semuaLokasiDenganPasien']);
 Route::delete('/praktik/{praktikId}/pasien/{pasienId}', [PendaftaranPraktikController::class, 'hapusPasienDariPraktik']);
+Route::post('/pasien/{pasien}/medical-records', [MedicalRecordController::class, 'storeByPasien']);
 
 Route::prefix('pasien')->group(function () {
     Route::get('/', [PasienController::class, 'index']); // semua pasien
@@ -43,10 +44,10 @@ Route::prefix('pasien')->group(function () {
 Route::prefix('medical-records')->group(function () {
     Route::get('/', [MedicalRecordController::class, 'index']);
     Route::post('/', [MedicalRecordController::class, 'store']);
-    // PUT/PATCH /api/medical-records/{record}
-    // Memperbarui riwayat medis berdasarkan ID
     Route::match(['put', 'patch'], '/{record}', [MedicalRecordController::class, 'update']);
-
     Route::delete('/{record}', [MedicalRecordController::class, 'destroy']);
-
+    Route::get('/grouped/pasien', [MedicalRecordController::class, 'indexByPasien']);
 });
+
+Route::post('/pasien/{pasien}/medical-records', [MedicalRecordController::class, 'storeByPasien']);
+Route::get('/pasien/{pasien}/medical-records', [MedicalRecordController::class, 'getByPasien']);
