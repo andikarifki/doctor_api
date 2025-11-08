@@ -4,19 +4,14 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class PendaftaranPraktik extends Model
 {
     use HasFactory;
 
-    /**
-     * Nama tabel di database
-     */
     protected $table = 'pendaftaran_praktik';
 
-    /**
-     * Kolom yang boleh diisi secara massal.
-     */
     protected $fillable = [
         'lokasi_praktik',
         'tanggal_daftar',
@@ -28,17 +23,25 @@ class PendaftaranPraktik extends Model
     public function pasiens()
     {
         return $this->belongsToMany(
-            Pasien::class,          // Model tujuan
-            'pasien_praktik',       // Tabel pivot
-            'praktik_id',           // Foreign key di tabel pivot yang mengarah ke tabel ini
-            'pasien_id'             // Foreign key di tabel pivot yang mengarah ke tabel pasien
+            Pasien::class,
+            'pasien_praktik',
+            'praktik_id',
+            'pasien_id'
         )
             ->withPivot(['tanggal_daftar'])
             ->withTimestamps();
     }
 
     /**
-     * Casting otomatis — ubah string tanggal menjadi objek Carbon.
+     * Relasi ke rekam medis — satu praktik bisa memiliki banyak medical record.
+     */
+    public function medicalRecords(): HasMany
+    {
+        return $this->hasMany(MedicalRecord::class, 'praktik_id');
+    }
+
+    /**
+     * Casting otomatis untuk tanggal
      */
     protected $casts = [
         'tanggal_daftar' => 'date',

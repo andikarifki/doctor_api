@@ -4,47 +4,46 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\HasMany; // Import untuk relasi
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Pasien extends Model
 {
     use HasFactory;
 
-    // Nama tabel di database
     protected $table = 'pasien';
 
-    /**
-     * Kolom yang diizinkan untuk diisi secara massal (Mass Assignment).
-     */
     protected $fillable = [
-        'praktik_id',
         'nik',
         'nama',
         'tanggal',
         'status',
     ];
 
-    /**
-     * Atribut yang harus di-cast ke tipe data asli.
-     */
     protected $casts = [
-        'tanggal' => 'date', // Mengubah string tanggal dari DB menjadi objek Carbon
+        'tanggal' => 'date',
     ];
 
-    public function praktiks()
+    /**
+     * Relasi ke Praktik (Many-to-Many via pivot)
+     */
+    public function praktiks(): BelongsToMany
     {
         return $this->belongsToMany(
-            PendaftaranPraktik::class,  // model praktik kamu (kalau namanya lain sesuaikan)
-            'pasien_praktik',           // nama tabel pivot
-            'pasien_id',                // foreign key di pivot
-            'praktik_id'                // foreign key di tabel tujuan
-        )->withPivot(['tanggal_daftar'])
+            PendaftaranPraktik::class, // Model praktik
+            'pasien_praktik',          // Tabel pivot
+            'pasien_id',               // FK pivot → pasien
+            'praktik_id'               // FK pivot → praktik
+        )
+            ->withPivot(['tanggal_daftar'])
             ->withTimestamps();
     }
 
+    /**
+     * Relasi ke rekam medis (One-to-Many)
+     */
     public function medicalRecords(): HasMany
     {
-        // Satu Pasien punya banyak Riwayat Medis
-        return $this->hasMany(MedicalRecord::class);
+        return $this->hasMany(MedicalRecord::class, 'pasien_id');
     }
 }

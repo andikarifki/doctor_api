@@ -41,8 +41,7 @@ Route::prefix('pasien')->group(function () {
 });
 
 Route::prefix('medical-records')->group(function () {
-    // POST /api/medical-records
-    // Menyimpan riwayat medis baru untuk pasien tertentu
+    Route::get('/', [MedicalRecordController::class, 'index']);
     Route::post('/', [MedicalRecordController::class, 'store']);
     // PUT/PATCH /api/medical-records/{record}
     // Memperbarui riwayat medis berdasarkan ID

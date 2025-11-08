@@ -4,7 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo; // Import untuk relasi
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class MedicalRecord extends Model
 {
@@ -12,18 +12,19 @@ class MedicalRecord extends Model
 
     protected $fillable = [
         'pasien_id',
+        'praktik_id',
         'tanggal_periksa',
         'diagnosis',
         'obat',
-        'lokasi_berobat',
     ];
 
-    /**
-     * Relasi ke Pasien (Patient).
-     */
     public function pasien(): BelongsTo
     {
-        // Satu Riwayat Medis hanya dimiliki oleh satu Pasien
         return $this->belongsTo(Pasien::class);
+    }
+
+    public function praktik(): BelongsTo
+    {
+        return $this->belongsTo(PendaftaranPraktik::class, 'praktik_id');
     }
 }

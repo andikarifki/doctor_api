@@ -143,7 +143,7 @@ class PasienController extends Controller
     public function show($id): JsonResponse
     {
         try {
-            $pasien = Pasien::with(['praktiks', 'medicalRecords'])->findOrFail($id);
+            $pasien = Pasien::with(['praktiks', 'medicalRecords.praktik'])->findOrFail($id);
 
             return response()->json([
                 'success' => true,
