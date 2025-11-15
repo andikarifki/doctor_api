@@ -18,6 +18,7 @@ class Pasien extends Model
         'nama',
         'tanggal',
         'status',
+        'no_tlp',
     ];
 
     protected $casts = [

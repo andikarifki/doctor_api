@@ -113,6 +113,7 @@ class PasienController extends Controller
                 'nama' => 'required|string|max:255',
                 'tanggal' => 'required|date',
                 'status' => 'sometimes|string|in:Aktif,Tidak Aktif',
+                'no_tlp' => 'nullable|string|max:20', // Tambahkan kolom no_tlp
             ]);
 
             $pasien = Pasien::create([
@@ -120,6 +121,7 @@ class PasienController extends Controller
                 'nama' => $validated['nama'],
                 'tanggal' => $validated['tanggal'],
                 'status' => $validated['status'] ?? 'Aktif',
+                'no_tlp' => $validated['no_tlp'] ?? null, // Masukkan ke DB
             ]);
 
             return response()->json([
@@ -214,14 +216,19 @@ class PasienController extends Controller
         try {
             $pasien = Pasien::findOrFail($id);
 
+            // Validasi input
             $validated = $request->validate([
                 'nik' => 'sometimes|string|size:16|unique:pasien,nik,'.$id,
                 'nama' => 'sometimes|string|max:255',
                 'tanggal' => 'sometimes|date|before_or_equal:today',
                 'status' => 'sometimes|string|in:Aktif,Tidak Aktif,Meninggal',
+                'no_tlp' => 'sometimes|string|max:20', // Tambahkan nomor telepon
             ]);
 
+            // Update pasien
             $pasien->update($validated);
+
+            // Load relasi untuk response lengkap
             $pasien->load(['praktiks', 'medicalRecords']);
 
             return response()->json([
