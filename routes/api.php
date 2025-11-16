@@ -4,6 +4,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\MedicalRecordController;
 use App\Http\Controllers\PasienController;
 use App\Http\Controllers\PendaftaranPraktikController;
+use App\Http\Controllers\StokObatController;
 use Illuminate\Support\Facades\Route; // Pastikan ini diimpor!
 
 // Route Public (Tidak memerlukan token)
@@ -22,6 +23,8 @@ Route::middleware('auth:sanctum')->group(function () {
 });
 
 Route::apiResource('pendaftaran-praktik', PendaftaranPraktikController::class);
+Route::apiResource('stok-obat', StokObatController::class);
+
 Route::get('/pasien/{pasien_id}/praktik', [App\Http\Controllers\PasienController::class, 'listPraktiks']);
 Route::get('/praktik/{id}/pasiens', [PasienController::class, 'indexByPraktikId']);
 Route::get('/praktik/semua', [PasienController::class, 'semuaLokasiDenganPasien']);
