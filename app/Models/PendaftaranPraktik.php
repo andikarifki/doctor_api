@@ -14,7 +14,6 @@ class PendaftaranPraktik extends Model
 
     protected $fillable = [
         'lokasi_praktik',
-        'tanggal_daftar',
     ];
 
     /**

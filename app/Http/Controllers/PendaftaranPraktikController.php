@@ -31,7 +31,6 @@ class PendaftaranPraktikController extends Controller
             // Validasi data masukan
             $validatedData = $request->validate([
                 'lokasi_praktik' => 'sometimes|string|max:255',
-                'tanggal_daftar' => 'required|date',
             ]);
 
             // Membuat entri baru di database
@@ -65,7 +64,6 @@ class PendaftaranPraktikController extends Controller
             // Validasi data masukan (menggunakan 'sometimes' untuk update)
             $validatedData = $request->validate([
                 'lokasi_praktik' => 'sometimes|string|max:255',
-                'tanggal_daftar' => 'sometimes|date',
             ]);
 
             // Memperbarui data yang ada
