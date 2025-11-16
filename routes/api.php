@@ -4,6 +4,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\MedicalRecordController;
 use App\Http\Controllers\PasienController;
 use App\Http\Controllers\PendaftaranPraktikController;
+use App\Http\Controllers\RequestObatInternalController;
 use App\Http\Controllers\StokObatController;
 use Illuminate\Support\Facades\Route; // Pastikan ini diimpor!
 
@@ -54,3 +55,14 @@ Route::prefix('medical-records')->group(function () {
 
 Route::post('/pasien/{pasien}/medical-records', [MedicalRecordController::class, 'storeByPasien']);
 Route::get('/pasien/{pasien}/medical-records', [MedicalRecordController::class, 'getByPasien']);
+
+Route::prefix('request-obat-internal')->group(function () {
+    Route::get('/', [RequestObatInternalController::class, 'index']);       // List semua request
+    Route::post('/', [RequestObatInternalController::class, 'store']);      // Tambah request baru
+    Route::get('/{id}', [RequestObatInternalController::class, 'show']);    // Lihat detail request
+    Route::put('/{id}', [RequestObatInternalController::class, 'update']);  // Update request (approve/reject)
+    Route::delete('/{id}', [RequestObatInternalController::class, 'destroy']); // Hapus request
+});
+// routes/api.php
+Route::patch('request-obat-internal/{id}/approve', [RequestObatInternalController::class, 'approve']);
+Route::patch('request-obat-internal/{id}/reject', [RequestObatInternalController::class, 'reject']);
