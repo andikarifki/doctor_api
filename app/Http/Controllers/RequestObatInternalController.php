@@ -46,6 +46,25 @@ class RequestObatInternalController extends Controller
         return response()->json(['success' => true, 'data' => $requestObat]);
     }
 
+    public function destroy($id)
+    {
+        $requestObat = RequestObatInternal::findOrFail($id);
+
+        if ($requestObat->status !== 'pending') {
+            return response()->json([
+                'success' => false,
+                'message' => 'Hanya request pending yang bisa dibatalkan.',
+            ], 400);
+        }
+
+        $requestObat->delete();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Request berhasil dibatalkan.',
+        ]);
+    }
+
     public function approve($id)
     {
         $requestObat = RequestObatInternal::findOrFail($id);
