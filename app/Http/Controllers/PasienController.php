@@ -163,23 +163,25 @@ class PasienController extends Controller
     /**
      * 🔎 Menampilkan data pasien berdasarkan nama (pencarian parsial).
      */
-    public function searchByName($name): JsonResponse
+    public function searchByName($keyword): JsonResponse
     {
         $pasiens = Pasien::with(['praktiks', 'medicalRecords'])
-            ->where('nama', 'LIKE', '%'.$name.'%')
+            ->where(function ($q) use ($keyword) {
+                $q->where('nama', 'LIKE', '%'.$keyword.'%')
+                    ->orWhere('nik', 'LIKE', '%'.$keyword.'%');
+            })
             ->get();
 
         if ($pasiens->isEmpty()) {
             return response()->json([
                 'success' => false,
-                'message' => 'Pasien dengan nama "'.$name.'" tidak ditemukan.',
+                'message' => 'Pasien dengan keyword "'.$keyword.'" tidak ditemukan.',
                 'data' => [],
             ], 404);
         }
 
         return response()->json([
             'success' => true,
-            'message' => 'Daftar pasien berdasarkan nama berhasil diambil.',
             'data' => $pasiens,
         ]);
     }
