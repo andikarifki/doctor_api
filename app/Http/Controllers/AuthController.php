@@ -20,6 +20,7 @@ class AuthController extends Controller
             'username' => 'required|string|max:255|unique:users',
             'email' => 'nullable|string|email|max:255|unique:users',
             'password' => 'required|string|min:8|confirmed',
+            'role' => 'required|string|in:admin,apotek,dokter',
         ]);
 
         $user = User::create([
@@ -27,6 +28,7 @@ class AuthController extends Controller
             'username' => $request->username,
             'email' => $request->email,
             'password' => Hash::make($request->password),
+            'role' => $request->role,
         ]);
 
         $token = $user->createToken('auth_token')->plainTextToken;
@@ -50,7 +52,7 @@ class AuthController extends Controller
 
         if (! Auth::attempt($request->only('username', 'password'))) {
             throw ValidationException::withMessages([
-                'username' => ['Kredensial yang diberikan tidak cocok dengan catatan kami.'],
+                'username' => ['Username atau password tidak sesuai. Silakan periksa kembali.'],
             ]);
         }
 
@@ -62,6 +64,7 @@ class AuthController extends Controller
             'message' => 'Login berhasil',
             'access_token' => $token,
             'token_type' => 'Bearer',
+            'role' => $user->role,
         ]);
     }
 
